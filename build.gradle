@@ -3,7 +3,7 @@ plugins {
     id 'application'
 }
 
-group = 'com.csvmerger'
+group = 'csvmerger'
 version = '1.0'
 
 java {
@@ -11,8 +11,16 @@ java {
     targetCompatibility = JavaVersion.VERSION_11
 }
 
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+    }
+}
+
 application {
-    mainClass = 'com.csvmerger.CSVMerger'
+    mainClass = 'CSVMerger'
 }
 
 repositories {

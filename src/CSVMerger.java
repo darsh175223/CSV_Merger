@@ -1,5 +1,3 @@
-package com.csvmerger;
-
 import org.apache.commons.csv.*;
 import java.io.*;
 import java.util.*;

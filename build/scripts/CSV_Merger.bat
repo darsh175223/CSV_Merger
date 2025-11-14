@@ -74,7 +74,7 @@ set CLASSPATH=%APP_HOME%\lib\CSV_Merger-1.0.jar;%APP_HOME%\lib\commons-csv-1.10.
 
 
 @rem Execute CSV_Merger
-"%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %CSV_MERGER_OPTS%  -classpath "%CLASSPATH%" com.csvmerger.CSVMerger %*
+"%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %CSV_MERGER_OPTS%  -classpath "%CLASSPATH%" CSVMerger %*
 
 :end
 @rem End local scope for the variables with windows NT shell
