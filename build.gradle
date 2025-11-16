@@ -6,11 +6,6 @@ plugins {
 group = 'com.csvmerger'
 version = '1.0'
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
-
 application {
     mainClass = 'CSVMerger'
 }
@@ -46,9 +41,4 @@ tasks.withType(JavaCompile).configureEach {
         '--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED',
         '--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED'
     ]
-}
-
-// Remove verbose compilation output
-tasks.named('compileJava') {
-    options.verbose = false  
 }

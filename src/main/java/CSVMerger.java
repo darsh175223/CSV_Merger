@@ -15,14 +15,10 @@ public class CSVMerger {
         }
         
         String outputFile = args[0];
-        
         List<String> inputFiles = new ArrayList<>();
         for (int i = 1; i < args.length; i++) {
             inputFiles.add(args[i]);
-        }
-        
-        
-        
+        }      
         try {
             mergeCSVFiles(inputFiles, outputFile);
             System.out.println("Successfully merged " + inputFiles.size() + " files");
@@ -50,54 +46,52 @@ public class CSVMerger {
         // FileWriter testWriter = new FileWriter("test.csv");
         // testWriter.write("test,data\n");
         
-        // create the output file with headers
-        FileWriter fileWriter = new FileWriter(outputFile);
-        CSVPrinter csvPrinter = new CSVPrinter(fileWriter, CSVFormat.DEFAULT.withHeader(headers));
-        
         int totalRowsWritten = 0;
         
-        // process each input file
-        for (int i = 0; i < inputFiles.size(); i++) {
-            String inputFile = inputFiles.get(i);
-            System.out.println("\nProcessing file " + (i + 1) + ": " + inputFile);
-            
-            // read CSV file
-            FileReader fileReader = new FileReader(inputFile);
-            CSVParser csvParser = new CSVParser(fileReader, CSVFormat.DEFAULT.withFirstRecordAsHeader());
-            
-            // get headers from this file
-            Map<String, Integer> fileHeaders = csvParser.getHeaderMap();
-            System.out.println("Columns in this file: " + fileHeaders.keySet());
-            
-            // check if headers match
-            if (!headersMatch(headers, fileHeaders.keySet())) {
-                csvParser.close();
-                csvPrinter.close();
-                throw new IOException("Header mismatch in file: " + inputFile + 
-                                    "\nExpected: " + Arrays.toString(headers) + 
-                                    "\nFound: " + fileHeaders.keySet());
-            }
-            
-            // read and write each row
-            int rowCount = 0;
-            for (CSVRecord record : csvParser) {
-                // create new row in correct column order
-                List<String> row = new ArrayList<>();
-                for (String header : headers) {
-                    row.add(record.get(header));
-                }
-                csvPrinter.printRecord(row);
-                rowCount++;
-                totalRowsWritten++;
-            }
-            
-            System.out.println("Copied " + rowCount + " rows");
-            csvParser.close();
-        }
         
-        // close output file
-        csvPrinter.flush();
-        csvPrinter.close();
+        try (
+            FileWriter fileWriter = new FileWriter(outputFile);
+            CSVPrinter csvPrinter = new CSVPrinter(fileWriter, CSVFormat.DEFAULT.withHeader(headers))
+        ) {
+            // process each input file
+            for (int i = 0; i < inputFiles.size(); i++) {
+                String inputFile = inputFiles.get(i);
+                System.out.println("\nProcessing file " + (i + 1) + ": " + inputFile);
+                
+                try (
+                    FileReader fileReader = new FileReader(inputFile);
+                    CSVParser csvParser = new CSVParser(fileReader, CSVFormat.DEFAULT.withFirstRecordAsHeader())
+                ) {
+                    // get headers from this file
+                    Map<String, Integer> fileHeaders = csvParser.getHeaderMap();
+                    System.out.println("Columns in this file: " + fileHeaders.keySet());
+                    
+                    // check if headers match
+                    if (!headersMatch(headers, fileHeaders.keySet())) {
+                        throw new IOException("Header mismatch in file: " + inputFile + 
+                                            "\nExpected: " + Arrays.toString(headers) + 
+                                            "\nFound: " + fileHeaders.keySet());
+                    }
+                    
+                    // read and write each row
+                    int rowCount = 0;
+                    for (CSVRecord record : csvParser) {
+                        // create new row in correct column order
+                        List<String> row = new ArrayList<>();
+                        for (String header : headers) {
+                            row.add(record.get(header));
+                        }
+                        csvPrinter.printRecord(row);
+                        rowCount++;
+                        totalRowsWritten++;
+                    }
+                    
+                    System.out.println("Copied " + rowCount + " rows");
+                } 
+            }
+            
+            csvPrinter.flush();
+        } 
         
         System.out.println("\n MERGE COMPLETE");
         System.out.println("Total rows written: " + totalRowsWritten);
@@ -111,18 +105,18 @@ public class CSVMerger {
     // }
    
     private static String[] getHeadersFromFile(String filename) throws IOException {
-        FileReader fileReader = new FileReader(filename);
-        CSVParser csvParser = new CSVParser(fileReader, CSVFormat.DEFAULT.withFirstRecordAsHeader());
-        
-        // Get headers as array
-        Map<String, Integer> headerMap = csvParser.getHeaderMap();
-        String[] headers = new String[headerMap.size()];
-        for (Map.Entry<String, Integer> entry : headerMap.entrySet()) {
-            headers[entry.getValue()] = entry.getKey();
-        }
-        
-        csvParser.close();
-        return headers;
+        try (
+            FileReader fileReader = new FileReader(filename);
+            CSVParser csvParser = new CSVParser(fileReader, CSVFormat.DEFAULT.withFirstRecordAsHeader())
+        ) {
+            // Get headers as array
+            Map<String, Integer> headerMap = csvParser.getHeaderMap();
+            String[] headers = new String[headerMap.size()];
+            for (Map.Entry<String, Integer> entry : headerMap.entrySet()) {
+                headers[entry.getValue()] = entry.getKey();
+            }
+            return headers;
+        } 
     }
     
     // debug method for when testing 
